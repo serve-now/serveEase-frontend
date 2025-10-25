@@ -1,32 +1,23 @@
 'use client';
 
-import { useOrder } from '@/hooks/useOrder';
-import { useSearchParams } from 'next/navigation';
+import { OrderResponse } from '@/types/order';
 
-export default function OrderCheck() {
-  const param = useSearchParams();
-  const orderIdParam = param.get('orderId');
-  const orderId = orderIdParam ? Number(orderIdParam) : undefined;
+interface Props {
+  order?: OrderResponse | null;
+  isLoading?: boolean;
+}
 
-  const { data, isFetching, isError } = useOrder(orderId);
-
-  if (isFetching) {
+export default function OrderCheck2({ order, isLoading }: Props) {
+  if (isLoading) {
     return (
       <p role="status" aria-live="polite" className="py-8 text-gray-500">
         주문 내역 불러오는 중…
       </p>
     );
   }
-  if (isError) {
-    return (
-      <p role="alert" className="py-8 text-red-600">
-        주문 내역을 불러올 수 없습니다.
-      </p>
-    );
-  }
 
-  const items = data?.orderItems ?? [];
-  const kinds = items.length; // 상품 종류 수
+  const items = order?.orderItems ?? [];
+  const kinds = items.length;
   const totalQty = items.reduce((sum, it) => sum + (it.quantity ?? 0), 0);
   const totalAmount = items.reduce(
     (sum, it) => sum + (it.totalItemPrice ?? 0),
@@ -35,9 +26,8 @@ export default function OrderCheck() {
 
   return (
     <div className="w-full max-w-[21rem] h-full mx-auto px-4 py-6 grid grid-rows-[1fr_auto] gap-4">
-      {/* 주문 내역 상단*/}
       <div className="min-h-[260px] max-h-[52vh] overflow-auto rounded-lg border bg-white p-3">
-        {!orderId || items.length === 0 ? (
+        {items.length === 0 ? (
           <div className="flex items-center justify-center py-10 text-gray-500">
             주문 내역이 없습니다.
           </div>
@@ -61,7 +51,6 @@ export default function OrderCheck() {
         )}
       </div>
 
-      {/* 하단 */}
       <div className="rounded-lg border bg-white px-4 py-3">
         <div className="grid grid-cols-[1fr_auto] gap-y-1 text-sm">
           <div className="text-gray-500">상품 종류</div>

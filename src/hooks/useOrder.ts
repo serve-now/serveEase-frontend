@@ -12,6 +12,7 @@ export function useOrder(orderId?: number) {
     queryFn: () => getOrder(orderId as number),
     staleTime: 60 * 5 * 1000,
     enabled: !!orderId,
+    refetchOnMount: 'always',
     retry: false,
   });
 }

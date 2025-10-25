@@ -18,5 +18,6 @@ export type OrderResponse = {
     itemPrice: number;
     totalItemPrice: number;
   }[];
+  remainingAmount: number;
   paid: boolean;
 };
