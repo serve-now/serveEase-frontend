@@ -2,7 +2,7 @@ name: Vercel Build Check
 
 on:
   pull_request:
-    branches: [main, release] # PR이 열릴 때 빌드 검증
+    branches: ['*'] # PR이 열릴 때 빌드 검증
 
 jobs:
   vercel-build:
