@@ -18,3 +18,5 @@ export default function SalesKPICard({ title, value }: Props) {
     </div>
   );
 }
+
+// 밍
