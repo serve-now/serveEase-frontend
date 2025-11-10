@@ -33,8 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# vercel
-.vercel
+# vercel (빌드 결과물은 무시하지만 프로젝트 링크 파일은 포함)
+.vercel/*
+!.vercel/project.json
 
 # typescript
 *.tsbuildinfo
