@@ -1,6 +1,6 @@
-# 🍽️ ServeNow
+# 🍽️ Serve Now
 
-**매장의 주문과 결제를 하나의 흐름으로 관리할 수 있는 실시간 POS 시스템**
+**주문부터 결제·매출까지, 하나의 흐름으로 관리하는 실시간 POS 시스템**
 
 <img width="800" height="500" alt="랜딩 페이지" src="https://github.com/user-attachments/assets/10a6e1f3-1d39-4ef9-b6df-c19167a196ea" />
 
@@ -22,27 +22,32 @@
 
 ### 프로젝트 소개
 
-ServeNow는 매장에서 사용하는 POS 시스템을 웹으로 구현한 프로젝트입니다.  
-직원은 테이블 현황을 실시간으로 확인하고, 주문 생성부터 서빙 완료, 결제까지 하나의 플랫폼에서 처리할 수 있습니다.
+Serve Now는 **매장의 주문·결제 흐름을 웹으로 구현한 POS 시스템**입니다.
+
+실시간 매장 관리와 운영 편의성을 중심으로 설계되었습니다.  
+테이블 상태, 주문 진행, 결제 및 매출 관리 기능을 단계적으로 확장했습니다.
 
 <br/>
 
 ### 기간
 
-2025-09-07 ~ 진행 중
+**2025.09.07 ~ 11.19**
+
+- **1차 MVP**: 09.07 ~ 10.12
+- **2차 고도화**: 10.13 ~ 11.19
 
 <br/>
 
 ### 팀 구성
 
-- 프론트엔드 2명
-- 백엔드 1명
+- FE 2명
+- BE 1명
 
 <br/><br/>
 
 ## 2. 시작하기
 
-### [🍽️ ServeNow 바로가기](https://serve-now.site/)
+### [🍽️ Serve Now 바로가기](https://serve-now.site/)
 
 <br/>
 
@@ -75,7 +80,7 @@ npm run dev
 | ---------- | ------------------------------------ |
 | 프레임워크 | Next.js 15                           |
 | 언어       | TypeScript                           |
-| 상태 관리  | React Query, Zustand                 |
+| 상태 관리  | Tanstack Query, Zustand              |
 | UI         | shadcn/ui, TailwindCSS, Lucide Icons |
 | 결제       | TossPayments SDK                     |
 | 배포       | AWS                                  |
@@ -121,8 +126,20 @@ npm run dev
 
 ### 결제
 
-- TossPayments 연동 간편 결제
+- TossPayments 연동 카드 결제
+- 현금 결제 지원
+- 분할 결제 지원 (카드 / 현금)
 - 결제 완료 시 테이블 상태 자동 업데이트 (서빙 완료)
+- 결제 취소 및 환불 처리 (카드 / 현금)
+
+<br/>
+
+### 매출 및 결제 내역 관리
+
+- 일간 / 주간 / 월간 매출 현황 조회
+- 특정 날짜 매출 확인 및 매출 차트 시각화
+- 결제 내역 조회 및 필터링 (날짜, 결제 수단 등)
+- 금액, 메뉴명 기준 결제 내역 검색
 
 <br/><br/>
 
@@ -132,52 +149,44 @@ npm run dev
 
 ```
 ├── src/
-│   ├── app/
-│   │   ├── (private)/
-│   │   │   └── pos/
-│   │   │       └── (shell-layout)/       # 공통 레이아웃 적용
-│   │   │           ├── payment/          # 결제 페이지
-│   │   │           │   ├── success/      # 결제 성공
-│   │   │           │   └── fail/         # 결제 실패
-│   │   │           ├── products/         # 상품 관리
-│   │   │           │   ├── [productId]/  # 개별 상품 상세
-│   │   │           │   │   └── edit/     # 상품 수정
-│   │   │           │   ├── @modal/       # 상품 모달 (추가/수정/카테고리)
-│   │   │           │   │   ├── (.)new/
-│   │   │           │   │   ├── (.)newCategory/
-│   │   │           │   │   └── (.)[productId]/
-│   │   │           │   ├── new/          # 새 상품 추가
-│   │   │           │   └── newCategory/  # 새 카테고리 추가
-│   │   │           │   └── page.tsx
-│   │   │           └── tables/           # 테이블 관리
-│   │   │               ├── [tableId]/
-│   │   │               │   ├── @modal/
-│   │   │               │   │   └── (.)orders/  # 주문 내역 모달
-│   │   │               │   └── orders/         # 주문 내역 페이지
-│   │   │               └── page.tsx
-│   │   ├── api/                          # API Routes
-│   │   ├── signup/                       # 회원가입 페이지
-│   │   └── page.tsx                      # 홈 페이지
-│   ├── components/                       # 재사용 UI 컴포넌트
-│   ├── hooks/                            # 커스텀 훅
-│   ├── lib/                              # axios 인스턴스, 유틸리티
-│   ├── styles/                           # 전역 스타일 (Tailwind 등)
-│   └─ types/                              # 타입 정의
-└── public/                                # 정적 파일
+│ ├── app/
+│ │ ├── (private)/pos/
+│ │ │ ├── (shell-layout)/
+│ │ │ │ ├── payment/          # 결제(카드)
+│ │ │ │ ├── payment-history/  # 결제 내역(필터링, 검색, 결제 취소)
+│ │ │ │ ├── tables/           # 테이블 / 주문 관리
+│ │ │ │ └── products/         # 상품 관리
+│ │ │ ├── (full-w-layout)/
+│ │ │ │ └── reports/sales/
+│ │ │ │    ├── calendar/      # 매출 달력
+│ │ │ │    └── chart/         # 매출 차트
+│ │ │ └── ...
+│ │ └── ...
+│ ├── components/             # 재사용 UI 컴포넌트
+│ ├── lib/
+│ ├── api/                    # API 요청 함수
+│ │ ├── queries/              # API 함수 + 쿼리 키 팩토리
+│ │ ├── schemas/              # Zod 스키마(런타임 응답 검증)
+│ │ └── ...
+│ ├── hooks/                  # Tanstack Query 훅, useDebounce 등
+│ └── ...
+└── public/
 ```
 
 <br/>
 
 ### 주요 디렉토리
 
-| 디렉토리      | 설명                                       |
-| ------------- | ------------------------------------------ |
-| `app/`        | Next.js App Router 기반 페이지 구조        |
-| `components/` | 재사용 가능한 UI 컴포넌트 (shadcn/ui 포함) |
-| `hooks/`      | React Query 기반 커스텀 훅                 |
-| `lib/`        | Axios 인스턴스, 유틸리티 함수              |
-| `styles/`     | 전역 스타일 및 Tailwind 설정               |
-| `types/`      | API 응답 및 전역 타입 정의                 |
+| 디렉토리       | 설명                                              |
+| -------------- | ------------------------------------------------- |
+| `app/`         | Next.js App Router                                |
+| `api`          | Axios 요청 함수                                   |
+| `hooks/`       | Tanstack Query 쿼리 훅                            |
+| `components/`  | 재사용 가능한 UI 컴포넌트 (shadcn/ui 포함)        |
+| `lib/`         | Axios 인스턴스, 유틸리티 함수                     |
+| `lib/queries/` | Tanstack Query Query Key Factory 등 데이터 레이어 |
+| `lib/schemas/` | Zod 기반 런타임 응답 검증 스키마                  |
+| `styles/`      | 전역 스타일 및 Tailwind 설정                      |
 
 <br/>
 
@@ -193,6 +202,8 @@ npm run dev
   - `@modal/(.)orders`, `@modal/(.)new` 등으로 기존 페이지 위에서 모달이 오버레이 구조로 구현
 - **동적 라우팅**
   - `[tableId]`, `[productId]` 등 동적 세그먼트를 통해 개별 테이블·상품 상세 페이지 처리
+- **리포트(매출) 영역 분리**
+  - `(full-w-layout)/reports/sales/*`로 매출 달력/차트 페이지를 POS 기능 영역과 분리
 
 <br/>
 
