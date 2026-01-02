@@ -6,6 +6,7 @@ import type { AxiosError } from 'axios';
 import { ApiErrorBody } from '@/lib/error';
 import { OrderRequest, OrderResponse } from '@/lib/schemas/order';
 import { orderKeys, tableKeys } from '@/lib/queries/keys';
+import { captureDomainError } from '@/lib/sentry/capture';
 
 export function useOrder(orderId?: number) {
   return useQuery<OrderResponse>({
@@ -31,8 +32,22 @@ export function useCreateOrder(tableId: number) {
       router.push('/pos/tables');
       queryClient.invalidateQueries({ queryKey: tableKeys.all });
     },
-    onError: (err) => {
+    onError: (err, payload) => {
       toast.error('주문 처리에 실패했습니다.');
+
+      captureDomainError({
+        error: err,
+        feature: 'order',
+        action: 'create',
+        level: 'error',
+        context: {
+          tableId,
+          itemsCount: payload?.orderItems?.length,
+          status: err?.response?.status,
+          apiMessage: err?.response?.data?.message,
+          optimistic: false,
+        },
+      });
 
       console.error('status:', err?.response?.status);
       console.error('data:', err?.response?.data);
@@ -91,12 +106,29 @@ export function useAddOrder(orderId: number) {
       queryClient.invalidateQueries({ queryKey: orderKeys.detail(orderId) });
     },
 
-    onError: (err, _payload, context) => {
+    onError: (err, payload, context) => {
+      const rolledBack = !!context?.prevOrder;
+
       if (context?.prevOrder) {
         queryClient.setQueryData(orderKeys.detail(orderId), context.prevOrder);
       }
 
       toast.error('주문 처리에 실패했습니다.');
+
+      captureDomainError({
+        error: err,
+        feature: 'order',
+        action: 'add',
+        level: 'error',
+        context: {
+          orderId,
+          itemsCount: payload?.orderItems?.length,
+          status: err?.response?.status,
+          apiMessage: err?.response?.data?.message,
+          optimistic: true,
+          rolledBack,
+        },
+      });
 
       console.error('status:', err?.response?.status);
       console.error('data:', err?.response?.data);
@@ -150,11 +182,27 @@ export function useCancelOrder(orderId: number) {
     },
 
     onError: (err, _payload, context) => {
-      if (context?.prevOrder) {
+      const rolledBack = !!context?.prevOrder;
+
+      if (rolledBack) {
         queryClient.setQueryData(orderKeys.detail(orderId), context.prevOrder);
       }
 
       toast.error('주문 취소에 실패했습니다.');
+
+      captureDomainError({
+        error: err,
+        feature: 'order',
+        action: 'cancel',
+        level: 'error',
+        context: {
+          orderId,
+          status: err?.response?.status,
+          apiMessage: err?.response?.data?.message,
+          optimistic: true,
+          rolledBack,
+        },
+      });
 
       console.error('status:', err?.response?.status);
       console.error('data:', err?.response?.data);
