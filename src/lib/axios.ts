@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getCookie } from './cookies';
+import { captureDomainError } from './sentry/capture';
 
 export const instance = axios.create({
   baseURL: '/api/bff',
@@ -41,6 +42,23 @@ instance.interceptors.response.use(
 
       window.location.href = `/?redirect=${encodeURIComponent(currentPath)}`;
       return;
+    }
+
+    const isServerError = status >= 500;
+    const isNetworkError = !error.response;
+
+    if (isServerError || isNetworkError) {
+      captureDomainError({
+        error,
+        feature: 'api',
+        step: 'response',
+        level: 'error',
+        context: {
+          method: error.config?.method,
+          url: error.config?.url,
+          status,
+        },
+      });
     }
 
     return Promise.reject(error);
